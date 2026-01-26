@@ -3,84 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Điểm danh Hometown 2026</title>
+    <title>Hometown 2026 - SEHC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #f0f4f8; color: #1e293b; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .btn-blue { background: #2563eb; color: white; transition: all 0.2s; }
-        .btn-blue:active { transform: scale(0.95); opacity: 0.9; }
-        .row-checked { background-color: #dcfce7 !important; border-left: 4px solid #22c55e; }
-        .sticky-search { position: sticky; top: 0; z-index: 50; }
-        /* Tối ưu cho mobile: không bị che bởi bàn phím */
-        input:focus { font-size: 16px !important; }
+        body { background-color: #f8fafc; color: #0f172a; font-family: 'Inter', system-ui, sans-serif; }
+        .glass-card { background: white; border: 1px solid #e2e8f0; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .family-done { background-color: #dcfce7 !important; border-left: 5px solid #22c55e !important; }
+        .member-done { background-color: #f0fdf4; }
+        .sticky-header { position: sticky; top: 0; z-index: 100; background: #2563eb; color: white; }
+        .btn-call { background: #dcfce7; color: #166534; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <div id="app" class="max-w-md mx-auto min-h-screen relative flex flex-col">
+    <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col">
         
         <div id="loader" class="flex-1 flex flex-col items-center justify-center p-10">
-            <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <p class="mt-4 font-medium text-blue-600">Đang đồng bộ dữ liệu...</p>
+            <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p class="mt-4 text-slate-500 font-medium">Đang tải dữ liệu...</p>
         </div>
 
-        <div id="view-login" class="hidden animate__animated animate__fadeIn p-6">
-            <div class="text-center my-10">
-                <div class="text-5xl mb-4">🚌</div>
-                <h1 class="text-2xl font-bold text-blue-800">Hometown 2026</h1>
-                <p class="text-slate-500">Hệ thống điểm danh Trưởng xe</p>
+        <div id="view-login" class="hidden p-6 animate__animated animate__fadeIn">
+            <div class="text-center my-12">
+                <div class="text-6xl mb-4">🚌</div>
+                <h1 class="text-2xl font-bold text-blue-900">Hometown 2026</h1>
+                <p class="text-slate-500">SEHC Employee Relations</p>
             </div>
             <div class="glass-card rounded-2xl p-6 space-y-4">
-                <select id="login-bus" class="w-full p-4 border rounded-xl bg-white shadow-sm outline-none focus:ring-2 ring-blue-500"></select>
-                <input id="login-phone" type="password" placeholder="Số điện thoại Trưởng xe" class="w-full p-4 border rounded-xl bg-white shadow-sm outline-none focus:ring-2 ring-blue-500">
-                <button onclick="handleLogin()" class="w-full btn-blue font-bold py-4 rounded-xl shadow-lg">VÀO ĐIỂM DANH</button>
-                <button onclick="showAdminLogin()" class="w-full text-slate-400 text-sm py-2">Quản trị viên BTC</button>
+                <select id="login-bus" class="w-full p-4 border rounded-xl bg-white shadow-sm outline-none focus:ring-2 ring-blue-500 text-sm"></select>
+                <input id="login-phone" type="password" placeholder="Mật khẩu (SĐT Trưởng xe)" class="w-full p-4 border rounded-xl outline-none focus:ring-2 ring-blue-500">
+                <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform">ĐĂNG NHẬP</button>
+                <button onclick="showAdminLogin()" class="w-full text-slate-400 text-xs mt-2">Truy cập Ban Tổ Chức (Admin)</button>
             </div>
         </div>
 
-        <div id="view-attendance" class="hidden animate__animated animate__fadeIn flex-1 flex flex-col">
-            <div class="bg-blue-600 p-4 text-white shadow-lg sticky top-0 z-50">
-                <div class="flex justify-between items-center mb-3">
+        <div id="view-attendance" class="hidden flex-1 flex flex-col">
+            <div class="sticky-header p-4 shadow-xl">
+                <div class="flex justify-between items-start mb-3">
                     <div>
                         <h2 id="display-bus-id" class="text-xl font-bold">Xe 01</h2>
-                        <p id="display-route" class="text-xs opacity-90"></p>
+                        <div id="bus-progress-text" class="text-[11px] bg-white/20 inline-block px-2 py-0.5 rounded-full mt-1 font-semibold">Đã lên: 0/0</div>
                     </div>
-                    <button onclick="switchView('view-login')" class="bg-white/20 px-3 py-1 rounded-lg text-xs">Thoát</button>
+                    <button onclick="logout()" class="text-white/80 hover:text-white"><i class="fa fa-sign-out-alt text-xl"></i></button>
                 </div>
-                <div class="relative">
-                    <input type="text" id="search-input" onkeyup="filterPassengers()" placeholder="Tìm tên hoặc Mã nhân viên..." 
-                           class="w-full p-3 pl-10 rounded-xl text-slate-800 outline-none shadow-inner">
-                    <span class="absolute left-3 top-3.5 text-slate-400"><i class="fa fa-search"></i></span>
+                
+                <div class="relative mt-2">
+                    <input type="text" id="search-input" onkeyup="renderPassengerList()" placeholder="Tìm tên hoặc Mã nhân viên..." 
+                           class="w-full p-3 pl-10 rounded-xl text-slate-900 outline-none shadow-inner text-sm">
+                    <i class="fa fa-search absolute left-3 top-3.5 text-slate-400 text-sm"></i>
                 </div>
             </div>
 
-            <div id="passenger-list" class="p-4 space-y-4 pb-32">
-                </div>
+            <div id="passenger-list" class="p-3 space-y-3 pb-32"></div>
 
-            <div class="fixed bottom-0 left-0 right-0 p-4 max-w-md mx-auto bg-white/80 backdrop-blur-md border-t flex gap-2">
-                <button onclick="confirmBusStatus('Departed')" class="flex-1 bg-green-600 text-white py-3.5 rounded-xl font-bold shadow-md">XE KHỞI HÀNH</button>
-                <button onclick="confirmBusStatus('Arrived')" class="flex-1 bg-blue-800 text-white py-3.5 rounded-xl font-bold shadow-md">XE ĐẾN NƠI</button>
+            <div class="fixed bottom-0 left-0 right-0 p-4 max-w-md mx-auto bg-white/90 backdrop-blur-md border-t flex gap-2">
+                <button onclick="confirmBusStatus('Departed')" class="flex-1 bg-green-600 text-white py-3.5 rounded-xl font-bold text-sm shadow-md">XE KHỞI HÀNH</button>
+                <button onclick="confirmBusStatus('Arrived')" class="flex-1 bg-blue-900 text-white py-3.5 rounded-xl font-bold text-sm shadow-md">XE ĐẾN NƠI</button>
             </div>
         </div>
 
-        <div id="view-admin" class="hidden animate__animated animate__fadeIn p-4">
+        <div id="view-admin" class="hidden p-4">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-blue-800">Báo cáo BTC</h2>
-                <button onclick="switchView('view-login')" class="text-slate-500"><i class="fa fa-times text-xl"></i></button>
+                <h2 class="text-2xl font-bold text-blue-900">Báo cáo BTC</h2>
+                <button onclick="logout()"><i class="fa fa-times text-xl text-slate-400"></i></button>
             </div>
             
-            <div id="admin-stats" class="grid grid-cols-2 gap-4 mb-6">
-                <div class="glass-card p-4 rounded-2xl text-center border-b-4 border-green-500">
-                    <p class="text-xs text-slate-500">Đã khởi hành</p>
-                    <p id="stat-departed" class="text-2xl font-bold">0</p>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="glass-card p-4 rounded-xl text-center border-b-4 border-green-500">
+                    <p class="text-[10px] uppercase text-slate-500 font-bold">Xe Đủ Khách</p>
+                    <p id="stat-full-bus" class="text-2xl font-bold text-green-600">0</p>
                 </div>
-                <div class="glass-card p-4 rounded-2xl text-center border-b-4 border-blue-500">
-                    <p class="text-xs text-slate-500">Đã đến nơi</p>
-                    <p id="stat-arrived" class="text-2xl font-bold">0</p>
+                <div class="glass-card p-4 rounded-xl text-center border-b-4 border-orange-500">
+                    <p class="text-[10px] uppercase text-slate-500 font-bold">Xe Chưa Đủ</p>
+                    <p id="stat-pending-bus" class="text-2xl font-bold text-orange-600">0</p>
+                </div>
+                <div class="glass-card p-3 rounded-xl text-center">
+                    <p class="text-[10px] text-slate-500">Khởi hành</p>
+                    <p id="stat-departed" class="text-lg font-bold">0</p>
+                </div>
+                <div class="glass-card p-3 rounded-xl text-center">
+                    <p class="text-[10px] text-slate-500">Đến nơi</p>
+                    <p id="stat-arrived" class="text-lg font-bold text-blue-600">0</p>
                 </div>
             </div>
 
@@ -90,74 +96,55 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzk8x_2IEhLDMuGZ83E0A9UubDTtAVz6Oj5xEbT2Qk_0CCX2NDgFHGG4E_fcfzADrNBqw/exec";
-        let rawData = null; 
+        let rawData = null;
         let currentBus = null;
-        let expandedFamilies = new Set(); // Lưu trạng thái các gia đình đang mở
+        let expandedFamilies = new Set();
 
         window.onload = async () => {
-            // Tối ưu: Kiểm tra cache trước khi tải
-            const cached = localStorage.getItem('hometown_data_2026');
+            const cached = localStorage.getItem('hometown_cache_v3');
             if (cached) {
                 rawData = JSON.parse(cached);
-                initApp();
-                document.getElementById('loader').classList.add('hidden');
-                document.getElementById('view-login').classList.remove('hidden');
+                initLogin();
+                hideLoader();
             }
-            // Luôn cập nhật ngầm dữ liệu mới nhất
-            fetchData();
+            fetchFreshData();
         };
 
-        async function fetchData() {
+        async function fetchFreshData() {
             try {
                 const resp = await fetch(API_URL);
                 rawData = await resp.json();
-                localStorage.setItem('hometown_data_2026', JSON.stringify(rawData));
-                initApp();
-                document.getElementById('loader').classList.add('hidden');
-                if (!currentBus) switchView('view-login');
-            } catch (e) {
-                if(!rawData) Swal.fire("Lỗi", "Không thể tải dữ liệu", "error");
-            }
+                localStorage.setItem('hometown_cache_v3', JSON.stringify(rawData));
+                initLogin();
+                hideLoader();
+                if (currentBus) renderPassengerList();
+            } catch (e) { console.error("Sync Error", e); }
         }
 
-        function initApp() {
+        function initLogin() {
             const select = document.getElementById('login-bus');
-            select.innerHTML = '<option value="">Chọn số xe của bạn</option>';
-            rawData.captains.sort((a,b) => a.BusID - b.BusID).forEach(cap => {
+            select.innerHTML = '<option value="">Chọn xe cần điểm danh</option>';
+            rawData.captains.sort((a,b) => a.BusID - b.BusID).forEach(c => {
                 const opt = document.createElement('option');
-                opt.value = cap.BusID;
-                opt.innerText = `Xe ${cap.BusID} - ${cap.Name} (${cap.Province})`;
+                opt.value = c.BusID;
+                opt.innerText = `Xe ${c.BusID} - ${c.Province} (${c.Name})`;
                 select.appendChild(opt);
             });
         }
 
-        function switchView(viewId) {
-            ['view-login', 'view-attendance', 'view-admin'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            document.getElementById(viewId).classList.remove('hidden');
-            window.scrollTo(0,0);
-        }
-
         function handleLogin() {
-            const busId = document.getElementById('login-bus').value;
+            const bid = document.getElementById('login-bus').value;
             const phone = document.getElementById('login-phone').value;
-            const captain = rawData.captains.find(c => c.BusID == busId && c.Phone == phone);
+            const cap = rawData.captains.find(c => c.BusID == bid && String(c.Phone).includes(phone));
 
-            if (captain) {
-                currentBus = busId;
-                switchView('view-attendance');
-                const busInfo = rawData.captains.find(c => c.BusID == currentBus);
-                document.getElementById('display-bus-id').innerText = `Xe ${currentBus}`;
-                document.getElementById('display-route').innerText = `Tuyến: ${busInfo.Province} - ${busInfo.District}`;
+            if (cap) {
+                currentBus = bid;
+                document.getElementById('display-bus-id').innerText = `Xe ${bid}`;
+                showView('view-attendance');
                 renderPassengerList();
             } else {
-                Swal.fire("Lỗi đăng nhập", "Số xe hoặc Số điện thoại không khớp", "error");
+                Swal.fire("Lỗi", "Thông tin đăng nhập không đúng!", "error");
             }
-        }
-
-        function filterPassengers() {
-            renderPassengerList();
         }
 
         function renderPassengerList() {
@@ -165,184 +152,170 @@
             const keyword = document.getElementById('search-input').value.toLowerCase();
             container.innerHTML = "";
             
-            const passengers = rawData.passengers.filter(p => p.BusID == currentBus);
+            const list = rawData.passengers.filter(p => p.BusID == currentBus);
+            const totalOn = list.filter(p => p.StatusOn).length;
+            document.getElementById('bus-progress-text').innerText = `Đã lên: ${totalOn}/${list.length}`;
+
+            // Grouping
             const families = {};
-            passengers.forEach(p => {
+            list.forEach(p => {
                 if (!families[p.GenID]) families[p.GenID] = [];
                 families[p.GenID].push(p);
             });
 
-            Object.keys(families).forEach(genId => {
-                const members = families[genId];
-                const mainMember = members.find(m => m.Note === "Người đăng ký") || members[0];
-                
-                // Logic lọc tìm kiếm
-                const matchSearch = members.some(m => 
-                    m.Name.toLowerCase().includes(keyword) || 
-                    String(m.GenID).toLowerCase().includes(keyword)
-                );
-                if (!matchSearch && keyword !== "") return;
+            // Sorting: Unfinished families go first
+            const sortedGenIds = Object.keys(families).sort((a, b) => {
+                const aDone = families[a].every(m => m.StatusOn);
+                const bDone = families[b].every(m => m.StatusOn);
+                return aDone - bDone; // false (0) comes before true (1)
+            });
 
-                const isExpanded = expandedFamilies.has(genId) || keyword !== "";
+            sortedGenIds.forEach(genId => {
+                const members = families[genId];
+                const main = members.find(m => m.Note === "Người đăng ký") || members[0];
+                const isFamilyDone = members.every(m => m.StatusOn);
+
+                // Search Filter
+                const isMatch = members.some(m => m.Name.toLowerCase().includes(keyword) || String(m.GenID).includes(keyword));
+                if (keyword && !isMatch) return;
+
+                const isOpen = expandedFamilies.has(genId) || keyword !== "";
                 const card = document.createElement('div');
-                card.className = `glass-card rounded-2xl overflow-hidden animate__animated animate__fadeInUp`;
+                card.className = `glass-card rounded-2xl overflow-hidden transition-all ${isFamilyDone ? 'family-done' : ''}`;
                 
-                const familyHtml = members.map(m => `
-                    <div class="p-4 border-t border-slate-100 ${m.StatusOn ? 'row-checked' : ''}">
-                        <div class="flex justify-between items-start mb-2">
+                let memberRows = members.map(m => `
+                    <div class="p-4 border-t border-slate-100 ${m.StatusOn ? 'member-done' : ''}">
+                        <div class="flex justify-between items-start">
                             <div class="flex-1">
-                                <p class="font-bold text-slate-800">${m.Name} <span class="text-[10px] font-normal bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">${m.Note}</span></p>
-                                <p class="text-xs text-slate-500">${m.Dept} | Gen: ${m.GenID}</p>
-                                <p class="text-[11px] text-blue-700 mt-1"><i class="fa fa-map-marker-alt"></i> ${m.Route || 'Chưa có lộ trình'}</p>
+                                <p class="font-bold text-slate-800 text-sm">${m.Name}</p>
+                                <p class="text-[10px] text-slate-500">${m.Dept} | ${m.Note}</p>
+                                <p class="text-[10px] text-blue-600 mt-1 font-medium"><i class="fa fa-route mr-1"></i>${m.Route || '---'}</p>
                             </div>
-                            <a href="tel:${m.Phone}" class="w-10 h-10 bg-green-100 text-green-600 flex items-center justify-center rounded-full ml-2">
-                                <i class="fa fa-phone"></i>
-                            </a>
+                            <a href="tel:${m.Phone}" class="btn-call text-sm"><i class="fa fa-phone"></i></a>
                         </div>
-                        <div class="flex gap-2 mt-3">
-                            <button onclick="toggleAttend('${m.GenID}', '${m.Name}', 'on')" class="flex-1 py-2 rounded-lg text-xs font-bold border-2 ${m.StatusOn ? 'bg-green-600 border-green-600 text-white' : 'border-slate-200 text-slate-600'}">LÊN XE</button>
-                            <button onclick="toggleAttend('${m.GenID}', '${m.Name}', 'off')" class="flex-1 py-2 rounded-lg text-xs font-bold border-2 ${m.StatusOff ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-200 text-slate-600'}">XUỐNG XE</button>
-                            <button onclick="handleCancel('${m.GenID}', '${m.Name}')" ${m.StatusOn ? 'disabled' : ''} class="w-12 py-2 rounded-lg text-xs flex items-center justify-center border-2 ${m.Reason ? 'bg-red-500 border-red-500 text-white' : 'border-slate-200 text-slate-400'} ${m.StatusOn ? 'opacity-30' : ''}">
-                                <i class="fa fa-user-slash"></i>
+                        <div class="flex gap-2 mt-4">
+                            <button onclick="updateStatus('${m.GenID}', '${m.Name}', 'on')" class="flex-1 py-2 rounded-lg text-[10px] font-bold border-2 ${m.StatusOn ? 'bg-green-600 border-green-600 text-white' : 'border-slate-200 text-slate-500'}">LÊN XE</button>
+                            <button onclick="updateStatus('${m.GenID}', '${m.Name}', 'off')" class="flex-1 py-2 rounded-lg text-[10px] font-bold border-2 ${m.StatusOff ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-200 text-slate-500'}">XUỐNG XE</button>
+                            <button onclick="handleCancel('${m.GenID}', '${m.Name}')" ${m.StatusOn ? 'disabled' : ''} class="px-3 rounded-lg border-2 ${m.Reason ? 'bg-red-500 border-red-500 text-white' : 'border-slate-100 text-slate-300'} ${m.StatusOn ? 'opacity-20' : ''}">
+                                <i class="fa fa-user-xmark"></i>
                             </button>
                         </div>
                     </div>
                 `).join('');
 
                 card.innerHTML = `
-                    <div class="p-4 flex justify-between items-center bg-slate-50" onclick="toggleFamily('${genId}')">
-                        <span class="font-bold text-blue-800">GĐ: ${mainMember.Name}</span>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs bg-slate-200 px-2 py-0.5 rounded-full">${members.length} người</span>
-                            <i class="fa ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'} text-slate-400 text-xs"></i>
+                    <div class="p-4 flex justify-between items-center bg-slate-50/50" onclick="toggleExpand('${genId}')">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-sm text-blue-900">${main.Name}</span>
+                            <span class="text-[10px] text-slate-400">Gen: ${genId}</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-white border border-slate-200 font-bold">${members.length} khách</span>
+                            <i class="fa ${isOpen ? 'fa-chevron-up' : 'fa-chevron-down'} text-slate-300 text-xs"></i>
                         </div>
                     </div>
-                    <div class="${isExpanded ? '' : 'hidden'}">
-                        ${familyHtml}
-                    </div>
+                    <div class="${isOpen ? '' : 'hidden'}">${memberRows}</div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        function toggleFamily(genId) {
-            if (expandedFamilies.has(genId)) expandedFamilies.delete(genId);
-            else expandedFamilies.add(genId);
-            renderPassengerList();
-        }
-
-        function toggleAttend(genId, name, type) {
+        function updateStatus(genId, name, type) {
             const p = rawData.passengers.find(x => x.GenID == genId && x.Name == name);
             const key = type === 'on' ? 'StatusOn' : 'StatusOff';
             p[key] = !p[key];
-            
-            // Tự động gán lên xe/xuống xe cho người thân nếu muốn (Tùy chọn)
-            // Ở đây giữ nguyên yêu cầu: nhấn ai người đó đổi màu
-            
             renderPassengerList();
-            showToast("Cập nhật thành công!");
-
-            fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: "updateAttendance", genId, name, type, value: p[key] })
-            });
+            showToast("Đã cập nhật");
+            syncData({ action: "updateAttendance", genId, name, type, value: p[key] });
         }
 
         async function handleCancel(genId, name) {
             const { value: reason } = await Swal.fire({
                 title: 'Lý do vắng mặt',
                 input: 'text',
-                inputPlaceholder: 'Nhập lý do vắng...',
-                showCancelButton: true,
-                confirmButtonText: 'Xác nhận hủy',
-                cancelButtonText: 'Đóng'
+                inputPlaceholder: 'Nhập lý do...',
+                showCancelButton: true
             });
-
             if (reason) {
                 const p = rawData.passengers.find(x => x.GenID == genId && x.Name == name);
-                p.Reason = reason;
-                p.StatusOn = false;
-                p.StatusOff = false;
+                p.Reason = reason; p.StatusOn = false; p.StatusOff = false;
                 renderPassengerList();
-                showToast("Đã ghi nhận vắng mặt");
-
-                fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: "updateAttendance", genId, name, type: "cancel", reason })
-                });
+                syncData({ action: "updateAttendance", genId, name, type: "cancel", reason });
             }
         }
 
         function confirmBusStatus(status) {
-            Swal.fire({
-                title: 'Xác nhận trạng thái xe?',
-                text: `Cập nhật xe ${currentBus}: ${status}`,
-                icon: 'question',
-                showCancelButton: true
-            }).then((result) => {
-                if (result.isConfirmed) {
+            Swal.fire({ title: 'Xác nhận?', text: `Cập nhật trạng thái xe: ${status}`, icon: 'question', showCancelButton: true }).then(r => {
+                if(r.isConfirmed) {
                     showToast("Đang đồng bộ...");
-                    fetch(API_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: "updateBusStatus", busId: currentBus, status: status })
-                    });
+                    syncData({ action: "updateBusStatus", busId: currentBus, status });
                 }
             });
         }
 
         async function showAdminLogin() {
-            const { value: pin } = await Swal.fire({
-                title: 'Mã PIN Quản trị',
-                input: 'password',
-                inputAttributes: { maxlength: 4, autofocus: 'true' }
-            });
-
+            const { value: pin } = await Swal.fire({ title: 'Mã PIN BTC', input: 'password' });
             if (pin === "2026") {
-                switchView('view-admin');
+                showView('view-admin');
                 renderAdmin();
-            } else {
-                Swal.fire("Sai mã PIN", "", "error");
-            }
+            } else { Swal.fire("Lỗi", "Mã PIN không đúng", "error"); }
         }
 
         function renderAdmin() {
-            const departed = rawData.buses.filter(b => b.Status === 'Departed').length;
-            const arrived = rawData.buses.filter(b => b.Status === 'Arrived').length;
+            const buses = rawData.buses;
+            const pList = rawData.passengers;
             
-            document.getElementById('stat-departed').innerText = departed;
-            document.getElementById('stat-arrived').innerText = arrived;
+            let fullCount = 0;
+            let pendingCount = 0;
 
             const container = document.getElementById('admin-bus-list');
             container.innerHTML = "";
 
-            rawData.buses.sort((a,b) => a.BusID - b.BusID).forEach(bus => {
-                const busCapt = rawData.captains.find(c => c.BusID == bus.BusID) || {};
-                const busPassengers = rawData.passengers.filter(p => p.BusID == bus.BusID);
-                const onBoard = busPassengers.filter(p => p.StatusOn).length;
-                const isReady = onBoard === busPassengers.length && busPassengers.length > 0;
+            buses.sort((a,b) => a.BusID - b.BusID).forEach(bus => {
+                const capt = rawData.captains.find(c => c.BusID == bus.BusID) || {};
+                const passengers = pList.filter(p => p.BusID == bus.BusID);
+                const onBoard = passengers.filter(p => p.StatusOn).length;
+                const isFull = onBoard === passengers.length && passengers.length > 0;
+                
+                if (isFull) fullCount++; else pendingCount++;
 
-                const item = document.createElement('div');
-                item.className = "glass-card p-4 rounded-xl flex justify-between items-center";
-                item.innerHTML = `
-                    <div>
-                        <p class="font-bold text-blue-900">Xe ${bus.BusID} - ${busCapt.Province || 'N/A'}</p>
-                        <p class="text-[10px] text-slate-500">Trưởng xe: ${busCapt.Name || 'N/A'}</p>
-                        <p class="text-[10px] text-slate-500">Lấp đầy: ${onBoard}/${busPassengers.length}</p>
+                const card = document.createElement('div');
+                card.className = "glass-card p-4 rounded-xl flex justify-between items-center";
+                card.innerHTML = `
+                    <div class="flex-1">
+                        <p class="font-bold text-blue-900">Xe ${bus.BusID} - ${capt.Province || 'N/A'}</p>
+                        <p class="text-[10px] text-slate-500">Trưởng xe: ${capt.Name || '---'}</p>
+                        <div class="flex items-center gap-2 mt-1">
+                             <span class="text-[10px] font-bold ${isFull ? 'text-green-600' : 'text-orange-500'}">${onBoard}/${passengers.length} khách</span>
+                             <span class="text-[9px] bg-slate-100 px-1.5 rounded">${bus.Status || 'Waiting'}</span>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <span class="text-[9px] px-2 py-0.5 rounded-full font-bold ${isReady ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-400'}">${isReady ? 'ĐỦ KHÁCH' : 'CHƯA ĐỦ'}</span>
-                        <p class="text-xs font-bold mt-1 text-blue-600">${bus.Status || 'Waiting'}</p>
-                    </div>
+                    <a href="tel:${capt.Phone}" class="btn-call ml-4"><i class="fa fa-phone"></i></a>
                 `;
-                container.appendChild(item);
+                container.appendChild(card);
             });
+
+            document.getElementById('stat-full-bus').innerText = fullCount;
+            document.getElementById('stat-pending-bus').innerText = pendingCount;
+            document.getElementById('stat-departed').innerText = buses.filter(b => b.Status === 'Departed').length;
+            document.getElementById('stat-arrived').innerText = buses.filter(b => b.Status === 'Arrived').length;
         }
 
-        function showToast(msg) {
-            Swal.fire({
-                title: msg, toast: true, position: 'top', showConfirmButton: false, timer: 1500, background: '#2563eb', color: '#fff'
-            });
+        // Utils
+        function syncData(payload) {
+            fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
         }
+        function toggleExpand(id) {
+            if (expandedFamilies.has(id)) expandedFamilies.delete(id); else expandedFamilies.add(id);
+            renderPassengerList();
+        }
+        function showView(id) {
+            ['view-login', 'view-attendance', 'view-admin'].forEach(v => document.getElementById(v).classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+        function hideLoader() { document.getElementById('loader').classList.add('hidden'); }
+        function logout() { location.reload(); }
+        function showToast(m) { Swal.fire({ title: m, toast: true, position: 'top', showConfirmButton: false, timer: 1500, background: '#2563eb', color: '#fff' }); }
     </script>
 </body>
 </html>
