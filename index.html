@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trang điểm danh Hometown 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #d41414 0%, #ffcc00 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .tet-decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body class="p-4 text-white">
+    <div class="tet-decoration top-0 left-0 w-24 h-24">🌸</div>
+    <div class="tet-decoration bottom-0 right-0 w-24 h-24 text-4xl">🧧</div>
+
+    <div id="app" class="max-w-md mx-auto relative z-10">
+        <div id="loader" class="text-center py-20">
+            <div class="animate-bounce text-4xl mb-4">🧧</div>
+            <p class="font-semibold">Đang tải dữ liệu Tết 2026...</p>
+        </div>
+
+        <div id="view-login" class="hidden animate__animated animate__fadeIn">
+            <div class="glass rounded-3xl p-8 text-center mt-10">
+                <h1 class="text-3xl font-bold mb-2">Hometown 2026</h1>
+                <p class="text-sm opacity-80 mb-8">Dành cho Trưởng xe SEHC</p>
+                
+                <div class="space-y-4">
+                    <select id="login-bus" class="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 outline-none focus:ring-2 ring-yellow-400">
+                        <option value="" class="text-black">Chọn số xe của bạn</option>
+                    </select>
+                    <input id="login-phone" type="password" placeholder="Mật khẩu (Số điện thoại)" 
+                           class="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 outline-none focus:ring-2 ring-yellow-400 placeholder-white/60">
+                    <button onclick="handleLogin()" class="w-full bg-yellow-400 text-red-700 font-bold py-3 rounded-xl shadow-lg hover:bg-yellow-300 transition-all">
+                        ĐĂNG NHẬP
+                    </button>
+                    <button onclick="showAdminLogin()" class="text-xs mt-4 underline opacity-70">Quản trị BTC</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-attendance" class="hidden animate__animated animate__fadeIn">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 id="display-bus-id" class="text-2xl font-bold">Xe 01</h2>
+                    <p id="display-route" class="text-xs opacity-80">Lộ trình: ...</p>
+                </div>
+                <button onclick="logout()" class="glass-dark px-3 py-1 rounded-lg text-xs">Thoát</button>
+            </div>
+
+            <div id="passenger-list" class="space-y-4 mb-24">
+                </div>
+
+            <div class="fixed bottom-6 left-0 right-0 px-4 max-w-md mx-auto flex gap-2">
+                <button onclick="confirmBusStatus('Departed')" class="flex-1 bg-green-500 py-3 rounded-xl font-bold shadow-xl border border-white/20">XE KHỞI HÀNH</button>
+                <button onclick="confirmBusStatus('Arrived')" class="flex-1 bg-blue-500 py-3 rounded-xl font-bold shadow-xl border border-white/20">XE ĐẾN NƠI</button>
+            </div>
+        </div>
+
+        <div id="view-admin" class="hidden animate__animated animate__fadeIn">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Thống kê BTC</h2>
+                <button onclick="logout()" class="glass-dark px-3 py-1 rounded-lg text-xs">Đóng</button>
+            </div>
+            
+            <div id="admin-stats" class="grid grid-cols-2 gap-4 mb-6">
+                <div class="glass p-4 rounded-2xl text-center">
+                    <p class="text-xs opacity-80">Đã khởi hành</p>
+                    <p id="stat-departed" class="text-2xl font-bold text-yellow-300">0</p>
+                </div>
+                <div class="glass p-4 rounded-2xl text-center">
+                    <p class="text-xs opacity-80">Đã đến nơi</p>
+                    <p id="stat-arrived" class="text-2xl font-bold text-blue-300">0</p>
+                </div>
+            </div>
+
+            <div id="admin-bus-list" class="space-y-3">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbzk8x_2IEhLDMuGZ83E0A9UubDTtAVz6Oj5xEbT2Qk_0CCX2NDgFHGG4E_fcfzADrNBqw/exec";
+        let rawData = {};
+        let currentBus = null;
+
+        window.onload = async () => {
+            try {
+                const resp = await fetch(API_URL);
+                rawData = await resp.json();
+                initLoginOptions();
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('view-login').classList.remove('hidden');
+            } catch (e) {
+                Swal.fire("Lỗi", "Không thể kết nối Backend!", "error");
+            }
+        };
+
+        function initLoginOptions() {
+            const select = document.getElementById('login-bus');
+            rawData.captains.forEach(cap => {
+                const opt = document.createElement('option');
+                opt.value = cap.BusID;
+                opt.innerText = `Xe ${cap.BusID} - ${cap.Name}`;
+                opt.className = "text-black";
+                select.appendChild(opt);
+            });
+        }
+
+        function handleLogin() {
+            const busId = document.getElementById('login-bus').value;
+            const phone = document.getElementById('login-phone').value;
+            const captain = rawData.captains.find(c => c.BusID == busId && c.Phone == phone);
+
+            if (captain) {
+                currentBus = busId;
+                showAttendance();
+            } else {
+                Swal.fire("Sai thông tin", "Số xe hoặc số điện thoại không đúng", "error");
+            }
+        }
+
+        function showAttendance() {
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-attendance').classList.remove('hidden');
+            
+            const busInfo = rawData.captains.find(c => c.BusID == currentBus);
+            document.getElementById('display-bus-id').innerText = `Xe ${currentBus}`;
+            document.getElementById('display-route').innerText = `Tỉnh: ${busInfo.Province} - ${busInfo.District}`;
+
+            renderPassengerList();
+        }
+
+        function renderPassengerList() {
+            const container = document.getElementById('passenger-list');
+            container.innerHTML = "";
+            
+            const passengers = rawData.passengers.filter(p => p.BusID == currentBus);
+            // Nhóm theo GenID (Gia đình)
+            const families = {};
+            passengers.forEach(p => {
+                if (!families[p.GenID]) families[p.GenID] = [];
+                families[p.GenID].push(p);
+            });
+
+            Object.values(families).forEach(members => {
+                const mainMember = members.find(m => m.Note === "Người đăng ký") || members[0];
+                const card = document.createElement('div');
+                card.className = "glass rounded-2xl overflow-hidden animate__animated animate__fadeInUp";
+                
+                let familyHtml = members.map(m => `
+                    <div class="flex items-center justify-between p-3 border-t border-white/10 bg-white/5">
+                        <div class="flex-1">
+                            <p class="font-semibold text-sm">${m.Name} <span class="text-[10px] bg-yellow-500/20 px-1 rounded">${m.Note}</span></p>
+                            <p class="text-[10px] opacity-70">${m.Dept} | ${m.IDNo}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="toggleAttend('${m.GenID}', '${m.Name}', 'on')" class="p-2 rounded-lg ${m.StatusOn ? 'bg-green-500' : 'bg-white/10'}">🚀</button>
+                            <button onclick="toggleAttend('${m.GenID}', '${m.Name}', 'off')" class="p-2 rounded-lg ${m.StatusOff ? 'bg-blue-500' : 'bg-white/10'}">🏠</button>
+                            <button onclick="handleCancel('${m.GenID}', '${m.Name}')" class="p-2 rounded-lg ${m.Reason ? 'bg-red-500' : 'bg-white/10'}">❌</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="p-4 flex justify-between items-center bg-white/10" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                        <span class="font-bold">GĐ: ${mainMember.Name}</span>
+                        <span class="text-xs bg-white/20 px-2 py-1 rounded-full">${members.length} người</span>
+                    </div>
+                    <div class="hidden">
+                        ${familyHtml}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function toggleAttend(genId, name, type) {
+            // Optimistic UI
+            const p = rawData.passengers.find(x => x.GenID == genId && x.Name == name);
+            const key = type === 'on' ? 'StatusOn' : 'StatusOff';
+            p[key] = !p[key];
+            
+            renderPassengerList();
+            showToast("Đã cập nhật!");
+
+            // Sync background
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: "updateAttendance",
+                    genId: genId,
+                    name: name,
+                    type: type,
+                    value: p[key]
+                })
+            });
+        }
+
+        async function handleCancel(genId, name) {
+            const { value: reason } = await Swal.fire({
+                title: 'Lý do không tham gia',
+                input: 'text',
+                inputPlaceholder: 'Nhập lý do...',
+                showCancelButton: true
+            });
+
+            if (reason) {
+                const p = rawData.passengers.find(x => x.GenID == genId && x.Name == name);
+                p.Reason = reason;
+                p.StatusOn = false;
+                p.StatusOff = false;
+                renderPassengerList();
+                showToast("Đã hủy điểm danh");
+
+                fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "updateAttendance", genId, name, type: "cancel", reason })
+                });
+            }
+        }
+
+        function confirmBusStatus(status) {
+            Swal.fire({
+                title: 'Xác nhận?',
+                text: `Xác nhận trạng thái: ${status}`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showToast("Đã cập nhật trạng thái xe!");
+                    fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: "updateBusStatus", busId: currentBus, status: status })
+                    });
+                }
+            });
+        }
+
+        async function showAdminLogin() {
+            const { value: pin } = await Swal.fire({
+                title: 'Mã PIN Quản trị',
+                input: 'password',
+                inputAttributes: { maxlength: 4, autofocus: 'true' }
+            });
+
+            if (pin === "2026") {
+                document.getElementById('view-login').classList.add('hidden');
+                document.getElementById('view-admin').classList.remove('hidden');
+                renderAdmin();
+            } else {
+                Swal.fire("Sai mã PIN", "", "error");
+            }
+        }
+
+        function renderAdmin() {
+            const departed = rawData.buses.filter(b => b.Status === 'Departed').length;
+            const arrived = rawData.buses.filter(b => b.Status === 'Arrived').length;
+            
+            document.getElementById('stat-departed').innerText = departed;
+            document.getElementById('stat-arrived').innerText = arrived;
+
+            const container = document.getElementById('admin-bus-list');
+            container.innerHTML = "";
+
+            rawData.buses.forEach(bus => {
+                // Tính toán tỷ lệ lấp đầy
+                const busPassengers = rawData.passengers.filter(p => p.BusID == bus.BusID);
+                const onBoard = busPassengers.filter(p => p.StatusOn).length;
+                const isReady = onBoard === busPassengers.length;
+
+                const item = document.createElement('div');
+                item.className = "glass p-4 rounded-xl flex justify-between items-center";
+                item.innerHTML = `
+                    <div>
+                        <p class="font-bold">Xe ${bus.BusID} - ${bus.Type}</p>
+                        <p class="text-[10px] opacity-70">Lấp đầy: ${onBoard}/${busPassengers.length}</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] px-2 py-1 rounded ${isReady ? 'bg-green-500' : 'bg-gray-500'}">${isReady ? 'READY' : 'PENDING'}</span>
+                        <span class="text-xs font-bold">${bus.Status}</span>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function showToast(msg) {
+            Swal.fire({
+                title: msg,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                background: '#ffcc00',
+                color: '#000'
+            });
+        }
+
+        function logout() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
