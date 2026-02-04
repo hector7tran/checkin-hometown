@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SEHC Hometown 2026</title>
+    <title>Hometown 2026 - SEHC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; }
-        .glass-header { background: #2563eb; color: white; position: sticky; top: 0; z-index: 50; }
-        .card-family { background: white; border-radius: 1rem; border: 1px solid #e2e8f0; transition: all 0.3s ease; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; overflow-x: hidden; }
+        .sticky-header { position: sticky; top: 0; z-index: 50; background: #2563eb; color: white; padding: 1rem; }
+        .card-family { background: white; border-radius: 1rem; border: 1px solid #e2e8f0; transition: all 0.2s ease; }
         .family-all-on { border-left: 6px solid #22c55e !important; background-color: #f0fdf4 !important; }
         .hidden { display: none !important; }
-        /* Tối ưu cảm ứng mobile */
-        button:active { transform: scale(0.96); }
-        .btn-call { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #dcfce7; color: #166534; }
+        .btn-call { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #dcfce7; color: #166534; }
+        /* Hiệu ứng loading nhẹ */
+        .sync-indicator { font-size: 10px; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 4px; }
     </style>
 </head>
 <body>
@@ -24,68 +24,68 @@
 <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col relative">
 
     <div id="loader" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center">
-        <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        <p class="mt-4 text-slate-500 animate-pulse font-medium">Đang khởi tạo hệ thống...</p>
+        <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <p class="mt-4 text-slate-500 font-medium">Đang khởi tạo hệ thống...</p>
     </div>
 
     <div id="view-login" class="hidden p-6 animate__animated animate__fadeIn">
-        <div class="text-center my-12">
+        <div class="text-center my-10">
             <div class="text-6xl mb-4">🚌</div>
             <h1 class="text-3xl font-extrabold text-blue-900 tracking-tight">Hometown 2026</h1>
-            <p class="text-slate-500 font-medium mt-1">Hệ thống điểm danh Trưởng xe</p>
+            <p class="text-slate-500 font-medium">Trang điểm danh Trưởng xe</p>
         </div>
-        <div class="bg-white rounded-3xl p-6 shadow-xl border border-slate-100 space-y-4">
+        <div class="bg-white rounded-3xl p-6 shadow-xl space-y-4 border border-slate-100">
             <div>
-                <label class="text-xs font-bold text-slate-400 uppercase ml-1">Chọn số xe</label>
+                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Số xe vận hành</label>
                 <select id="login-bus" class="w-full mt-1 p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 ring-blue-500 text-sm font-semibold"></select>
             </div>
             <div>
-                <label class="text-xs font-bold text-slate-400 uppercase ml-1">Mật khẩu (SĐT)</label>
-                <input id="login-phone" type="password" placeholder="Nhập số điện thoại trưởng xe" class="w-full mt-1 p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 ring-blue-500">
+                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Xác thực Trưởng xe</label>
+                <input id="login-phone" type="password" placeholder="Nhập số điện thoại" class="w-full mt-1 p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 ring-blue-500 text-sm">
             </div>
-            <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-200">BẮT ĐẦU ĐIỂM DANH</button>
-            <button onclick="checkAdmin()" class="w-full text-slate-400 text-xs py-2">Quản trị viên Ban Tổ Chức</button>
+            <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-transform">VÀO ĐIỂM DANH</button>
+            <button onclick="checkAdmin()" class="w-full text-slate-400 text-xs py-2">Quản trị Ban Tổ Chức</button>
         </div>
     </div>
 
     <div id="view-attendance" class="hidden flex-1 flex flex-col">
-        <div class="glass-header p-4 shadow-lg">
-            <div class="flex justify-between items-start mb-4">
+        <div class="sticky-header shadow-lg">
+            <div class="flex justify-between items-start mb-3">
                 <div>
-                    <h2 id="display-bus-id" class="text-2xl font-bold">Xe 01</h2>
-                    <div id="progress-bar-container" class="mt-2 flex items-center gap-2">
-                        <div class="w-32 bg-blue-900/30 h-2 rounded-full overflow-hidden">
-                            <div id="progress-fill" class="bg-green-400 h-full transition-all duration-500" style="width: 0%"></div>
+                    <h2 id="display-bus-id" class="text-xl font-bold">Xe 01</h2>
+                    <div class="flex items-center gap-2 mt-1">
+                        <div class="w-24 bg-blue-900/30 h-1.5 rounded-full overflow-hidden">
+                            <div id="progress-fill" class="bg-green-400 h-full" style="width: 0%"></div>
                         </div>
-                        <span id="progress-text" class="text-[10px] font-bold uppercase tracking-wider">0/0 khách</span>
+                        <span id="progress-text" class="text-[10px] font-bold">0/0 khách</span>
                     </div>
                 </div>
-                <button onclick="logout()" class="p-2 bg-white/10 rounded-xl"><i class="fa fa-right-from-bracket"></i></button>
+                <div class="flex flex-col items-end gap-2">
+                    <button onclick="goBack()" class="p-2 bg-white/20 rounded-xl active:bg-white/40"><i class="fa fa-arrow-left"></i></button>
+                    <div class="sync-indicator" id="sync-label"><i class="fa fa-sync fa-spin"></i> Live</div>
+                </div>
             </div>
-            <div class="relative">
-                <input type="text" id="search-input" onkeyup="renderList()" placeholder="Tìm tên, GenID..." class="w-full p-3 pl-10 rounded-xl text-slate-900 text-sm outline-none shadow-inner border-none">
+            <div class="relative mt-2">
+                <input type="text" id="search-input" onkeyup="renderList()" placeholder="Tìm tên, GenID..." class="w-full p-3 pl-10 rounded-xl text-slate-900 text-sm outline-none border-none shadow-inner">
                 <i class="fa fa-search absolute left-3 top-3.5 text-slate-400 text-sm"></i>
             </div>
         </div>
 
-        <div id="passenger-list" class="p-4 space-y-4 pb-32"></div>
+        <div id="passenger-list" class="p-3 space-y-3 pb-32"></div>
 
         <div class="fixed bottom-0 left-0 right-0 p-4 max-w-md mx-auto bg-white/80 backdrop-blur-md border-t border-slate-100 flex gap-2">
-            <button onclick="updateBus('Departed')" class="flex-1 bg-green-600 text-white py-4 rounded-2xl font-bold text-sm shadow-lg active:bg-green-700">XÁC NHẬN KHỞI HÀNH</button>
-            <button onclick="updateBus('Arrived')" class="flex-1 bg-blue-900 text-white py-4 rounded-2xl font-bold text-sm shadow-lg active:bg-black">XÁC NHẬN ĐẾN NƠI</button>
+            <button onclick="updateBus('Departed')" class="flex-1 bg-green-600 text-white py-4 rounded-2xl font-bold text-sm shadow-md">XE KHỞI HÀNH</button>
+            <button onclick="updateBus('Arrived')" class="flex-1 bg-blue-900 text-white py-4 rounded-2xl font-bold text-sm shadow-md">XE ĐẾN NƠI</button>
         </div>
     </div>
 
-    <div id="view-admin" class="hidden p-4 pb-10">
+    <div id="view-admin" class="hidden p-4">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-extrabold text-blue-900">Ban Tổ Chức</h2>
-            <button onclick="showView('view-login')" class="text-slate-400 text-xl"><i class="fa fa-times"></i></button>
+            <button onclick="goBack()" class="text-slate-400 text-xl"><i class="fa fa-times"></i></button>
         </div>
-
-        <div class="grid grid-cols-2 gap-3 mb-6" id="admin-stats-grid">
-            </div>
-
-        <div id="admin-bus-list" class="space-y-3"></div>
+        <div class="grid grid-cols-2 gap-3 mb-6" id="admin-stats-grid"></div>
+        <div id="admin-bus-list" class="space-y-3 pb-10"></div>
     </div>
 
 </div>
@@ -95,63 +95,95 @@
     let rawData = null;
     let currentBusId = null;
     let expandedFamilies = new Set();
+    let syncTimer = null;
 
-    // 1. LIFECYCLE: Khởi động app
+    // 1. KHỞI CHẠY ỨNG DỤNG
     window.onload = () => {
-        const cached = localStorage.getItem('sehc_hometown_2026_cache');
+        // Ưu tiên hiển thị dữ liệu từ Cache trước
+        const cached = localStorage.getItem('sehc_cache_2026');
         if (cached) {
-            rawData = JSON.parse(cached);
-            initLoginOptions();
-            showView('view-login');
-            hideLoader();
+            try {
+                rawData = JSON.parse(cached);
+                initApp();
+                showView('view-login');
+                document.getElementById('loader').classList.add('hidden');
+            } catch(e) { localStorage.removeItem('sehc_cache_2026'); }
         }
-        // Luôn fetch dữ liệu mới nhất ngầm
-        fetchData();
+        
+        // Tải dữ liệu từ server
+        fetchData(true);
+
+        // Thiết lập tự động làm mới mỗi 30 giây
+        setInterval(() => fetchData(false), 30000);
     };
 
-    async function fetchData() {
+    async function fetchData(isInitial = false) {
+        if (!isInitial) document.getElementById('sync-label').innerHTML = '<i class="fa fa-sync fa-spin"></i> Updating...';
+        
         try {
             const resp = await fetch(API_URL);
             const data = await resp.json();
             if (data.error) throw new Error(data.error);
             
             rawData = data;
-            localStorage.setItem('sehc_hometown_2026_cache', JSON.stringify(data));
+            localStorage.setItem('sehc_cache_2026', JSON.stringify(data));
             
-            initLoginOptions();
-            hideLoader();
+            initApp();
             
-            // Nếu đang ở màn hình nào đó thì refresh UI ngay lập tức
+            // Cập nhật giao diện nếu đang ở màn hình danh sách hoặc admin
             if (currentBusId) renderList();
-            if (document.getElementById('view-admin').classList.contains('hidden') === false) renderAdmin();
+            if (!document.getElementById('view-admin').classList.contains('hidden')) renderAdmin();
             
-            console.log("Background Data Synced ✅");
+            if (isInitial) {
+                showView('view-login');
+                document.getElementById('loader').classList.add('hidden');
+            }
+            document.getElementById('sync-label').innerHTML = '<i class="fa fa-check-circle"></i> Live';
         } catch (e) {
-            console.error("Sync Error:", e);
-            if (!rawData) {
-                Swal.fire("Lỗi kết nối", "Vui lòng kiểm tra Internet", "error");
-                hideLoader();
+            console.error("Fetch Error:", e);
+            document.getElementById('sync-label').innerHTML = '<i class="fa fa-exclamation-triangle"></i> Offline';
+            if (isInitial && !rawData) {
+                Swal.fire("Lỗi kết nối", "Vui lòng kiểm tra internet và thử lại.", "error");
+                document.getElementById('loader').classList.add('hidden');
             }
         }
     }
 
-    function initLoginOptions() {
+    function initApp() {
         const select = document.getElementById('login-bus');
         if (!select || !rawData.captains) return;
-        select.innerHTML = '<option value="">Chọn xe...</option>';
+        const currentVal = select.value;
+        select.innerHTML = '<option value="">-- Chọn số xe --</option>';
         rawData.captains.sort((a,b) => a.BusID - b.BusID).forEach(c => {
             const opt = document.createElement('option');
             opt.value = c.BusID;
             opt.innerText = `Xe ${c.BusID} - ${c.Province} (${c.Name})`;
             select.appendChild(opt);
         });
+        if (currentVal) select.value = currentVal;
     }
 
-    // 2. LOGIC ĐĂNG NHẬP
+    // 2. LOGIC ĐIỀU HƯỚNG & ĐĂNG NHẬP
+    function showView(id) {
+        ['view-login', 'view-attendance', 'view-admin', 'loader'].forEach(v => {
+            const el = document.getElementById(v);
+            if (el) el.classList.add('hidden');
+        });
+        const target = document.getElementById(id);
+        if (target) target.classList.remove('hidden');
+    }
+
+    function goBack() {
+        currentBusId = null;
+        expandedFamilies.clear();
+        document.getElementById('search-input').value = "";
+        showView('view-login');
+    }
+
     function handleLogin() {
         const bid = document.getElementById('login-bus').value;
         const phone = document.getElementById('login-phone').value;
-        if (!bid || !phone) return Swal.fire("Thiếu thông tin", "Vui lòng chọn xe và nhập mật khẩu", "warning");
+        if (!bid || !phone) return Swal.fire("Thiếu thông tin", "Vui lòng chọn xe và nhập số điện thoại", "warning");
 
         const cap = rawData.captains.find(c => c.BusID == bid && String(c.Phone).includes(phone));
         if (cap) {
@@ -160,33 +192,30 @@
             showView('view-attendance');
             renderList();
         } else {
-            Swal.fire("Sai mật khẩu", "Số điện thoại không đúng với Trưởng xe này", "error");
+            Swal.fire("Lỗi xác thực", "Số điện thoại không đúng với Trưởng xe này", "error");
         }
     }
 
-    // 3. LOGIC ĐIỂM DANH (ATTENDANCE)
+    // 3. LOGIC ĐIỂM DANH
     function renderList() {
         const container = document.getElementById('passenger-list');
         const keyword = document.getElementById('search-input').value.toLowerCase();
+        if (!container) return;
         container.innerHTML = "";
 
         const passengers = rawData.passengers.filter(p => p.BusID == currentBusId);
         
-        // Thống kê progress
         const total = passengers.length;
         const onBoard = passengers.filter(p => p.StatusOn).length;
-        const percent = total > 0 ? (onBoard / total) * 100 : 0;
-        document.getElementById('progress-fill').style.width = percent + "%";
+        document.getElementById('progress-fill').style.width = (total > 0 ? (onBoard/total)*100 : 0) + "%";
         document.getElementById('progress-text').innerText = `${onBoard}/${total} khách`;
 
-        // Nhóm theo gia đình (GenID)
         const families = {};
         passengers.forEach(p => {
             if (!families[p.GenID]) families[p.GenID] = [];
             families[p.GenID].push(p);
         });
 
-        // Sắp xếp: Ai chưa điểm danh xong lên đầu
         const sortedIds = Object.keys(families).sort((a, b) => {
             const aDone = families[a].every(m => m.StatusOn || m.Reason);
             const bDone = families[b].every(m => m.StatusOn || m.Reason);
@@ -197,170 +226,97 @@
             const members = families[gid];
             const main = members.find(m => m.Note === "Người đăng ký") || members[0];
             const isAllOn = members.every(m => m.StatusOn || m.Reason);
-            
-            // Search filter
             if (keyword && !members.some(m => m.Name.toLowerCase().includes(keyword) || String(m.GenID).includes(keyword))) return;
 
             const isOpen = expandedFamilies.has(gid) || keyword !== "";
             const card = document.createElement('div');
             card.className = `card-family shadow-sm overflow-hidden ${isAllOn ? 'family-all-on' : ''}`;
             
-            let htmlRows = members.map(m => `
-                <div class="p-4 border-t border-slate-50 ${m.StatusOn ? 'bg-green-50/30' : ''}">
+            let rows = members.map(m => `
+                <div class="p-4 border-t border-slate-50 ${m.StatusOn ? 'bg-green-50/40' : ''}">
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
                             <p class="font-bold text-sm text-slate-800">${m.Name}</p>
-                            <p class="text-[10px] text-slate-500 font-medium tracking-tight uppercase">${m.Dept} • ${m.Note}</p>
-                            <p class="text-[10px] text-blue-600 mt-1 font-bold"><i class="fa fa-location-dot mr-1"></i>${m.Route || 'Chưa rõ lộ trình'}</p>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">${m.Dept} • ${m.Note}</p>
+                            <p class="text-[10px] text-blue-600 mt-1 font-bold"><i class="fa fa-route mr-1"></i>${m.Route || '---'}</p>
                         </div>
                         <a href="tel:${m.Phone}" class="btn-call shadow-sm"><i class="fa fa-phone"></i></a>
                     </div>
                     <div class="flex gap-2 mt-4">
-                        <button onclick="toggleAttendance('${gid}','${m.Name}','on')" class="flex-1 py-2 rounded-xl text-[10px] font-extrabold border-2 transition-all ${m.StatusOn ? 'bg-green-600 border-green-600 text-white' : 'border-slate-200 text-slate-400'}">LÊN XE</button>
-                        <button onclick="toggleAttendance('${gid}','${m.Name}','off')" class="flex-1 py-2 rounded-xl text-[10px] font-extrabold border-2 transition-all ${m.StatusOff ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-200 text-slate-400'}">XUỐNG</button>
-                        <button onclick="cancelAttendance('${gid}','${m.Name}')" ${m.StatusOn ? 'disabled' : ''} class="px-3 rounded-xl border-2 ${m.Reason ? 'bg-red-500 border-red-500 text-white' : 'border-slate-100 text-slate-200'} ${m.StatusOn ? 'opacity-20' : ''}">
-                            <i class="fa fa-user-slash"></i>
-                        </button>
+                        <button onclick="updateAt('${gid}','${m.Name}','on')" class="flex-1 py-2.5 rounded-xl text-[10px] font-extrabold border-2 ${m.StatusOn ? 'bg-green-600 border-green-600 text-white shadow-md' : 'border-slate-200 text-slate-400'}">LÊN XE</button>
+                        <button onclick="updateAt('${gid}','${m.Name}','off')" class="flex-1 py-2.5 rounded-xl text-[10px] font-extrabold border-2 ${m.StatusOff ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'border-slate-200 text-slate-400'}">XUỐNG XE</button>
+                        <button onclick="cancelAt('${gid}','${m.Name}')" ${m.StatusOn ? 'disabled' : ''} class="px-4 rounded-xl border-2 ${m.Reason ? 'bg-red-500 border-red-500 text-white' : 'border-slate-100 text-slate-200'} ${m.StatusOn ? 'opacity-20' : ''}"><i class="fa fa-user-xmark"></i></button>
                     </div>
-                    ${m.Reason ? `<p class="mt-2 text-[9px] text-red-500 font-bold bg-red-50 p-1 px-2 rounded italic">Lý do: ${m.Reason}</p>` : ''}
                 </div>
             `).join('');
 
             card.innerHTML = `
-                <div class="p-4 flex justify-between items-center" onclick="toggleExpand('${gid}')">
-                    <div>
-                        <p class="font-bold text-blue-900">${main.Name}</p>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mã NV: ${gid}</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded-full font-bold">${members.length} người</span>
-                        <i class="fa ${isOpen ? 'fa-chevron-up' : 'fa-chevron-down'} text-slate-300"></i>
-                    </div>
+                <div class="p-4 flex justify-between items-center" onclick="toggleF('${gid}')">
+                    <div><p class="font-bold text-blue-900">${main.Name}</p><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gen: ${gid}</p></div>
+                    <div class="flex items-center gap-2"><span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded-full font-bold">${members.length} người</span><i class="fa ${isOpen ? 'fa-chevron-up' : 'fa-chevron-down'} text-slate-300"></i></div>
                 </div>
-                <div class="${isOpen ? '' : 'hidden'}">${htmlRows}</div>
+                <div class="${isOpen ? '' : 'hidden'}">${rows}</div>
             `;
             container.appendChild(card);
         });
     }
 
-    function toggleAttendance(gid, name, type) {
+    function updateAt(gid, name, type) {
         const p = rawData.passengers.find(x => x.GenID == gid && x.Name == name);
         const key = type === 'on' ? 'StatusOn' : 'StatusOff';
         p[key] = !p[key];
-        renderList(); // Optimistic UI
-        // Gửi ngầm
+        renderList();
         fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "updateAttendance", genId: gid, name, type, value: p[key] }) });
     }
 
-    async function cancelAttendance(gid, name) {
-        const { value: reason } = await Swal.fire({ 
-            title: 'Hủy tham gia?', 
-            input: 'text', 
-            inputPlaceholder: 'Nhập lý do vắng mặt...', 
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444'
-        });
-        if (reason) {
+    async function cancelAt(gid, name) {
+        const { value: r } = await Swal.fire({ title: 'Vắng mặt?', input: 'text', inputPlaceholder: 'Lý do...', showCancelButton: true });
+        if (r) {
             const p = rawData.passengers.find(x => x.GenID == gid && x.Name == name);
-            p.Reason = reason; p.StatusOn = false; p.StatusOff = false;
+            p.Reason = r; p.StatusOn = false; p.StatusOff = false;
             renderList();
-            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "updateAttendance", genId: gid, name, type: "cancel", reason }) });
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "updateAttendance", genId: gid, name, type: "cancel", reason: r }) });
         }
     }
 
     function updateBus(status) {
-        Swal.fire({ title: 'Xác nhận?', text: `Cập nhật trạng thái xe: ${status}`, icon: 'question', showCancelButton: true })
-        .then(r => {
-            if(r.isConfirmed) {
-                const b = rawData.buses.find(x => x.BusID == currentBusId);
-                if(b) b.Status = status;
-                Swal.fire("Thành công", "", "success");
-                fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "updateBusStatus", busId: currentBusId, status }) });
-            }
-        });
+        Swal.fire({ title: 'Xác nhận?', text: `Xe ${currentBusId}: ${status}`, icon: 'question', showCancelButton: true })
+        .then(r => { if(r.isConfirmed) fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "updateBusStatus", busId: currentBusId, status }) }); });
     }
 
-    // 4. LOGIC ADMIN
+    // 4. ADMIN
     async function checkAdmin() {
-        const { value: pin } = await Swal.fire({ title: 'BTC PIN', input: 'password', inputAttributes: { maxlength: 4 } });
-        if (pin === "2026") {
-            showView('view-admin');
-            renderAdmin();
-        } else if(pin) {
-            Swal.fire("Sai PIN", "", "error");
-        }
+        const { value: pin } = await Swal.fire({ title: 'BTC PIN', input: 'password' });
+        if (pin === "2026") { showView('view-admin'); renderAdmin(); }
     }
 
     function renderAdmin() {
-        const buses = rawData.buses;
-        const pass = rawData.passengers;
-        const capts = rawData.captains;
-
-        let full = 0, pending = 0, departed = 0, arrived = 0;
+        const b = rawData.buses, p = rawData.passengers, c = rawData.captains;
+        let full = 0, part = 0, dep = 0, arr = 0;
         const list = document.getElementById('admin-bus-list');
         list.innerHTML = "";
+        b.sort((x,y) => x.BusID - y.BusID).forEach(bus => {
+            const cp = c.find(x => x.BusID == bus.BusID) || {};
+            const onB = p.filter(x => x.BusID == bus.BusID);
+            const onC = onB.filter(x => x.StatusOn).length;
+            const isF = onC === onB.length && onB.length > 0;
+            if (isF) full++; else part++;
+            if (bus.Status === 'Departed') dep++;
+            if (bus.Status === 'Arrived') arr++;
 
-        buses.sort((a,b)=>a.BusID - b.BusID).forEach(b => {
-            const c = capts.find(x => x.BusID == b.BusID) || {};
-            const pOnBus = pass.filter(p => p.BusID == b.BusID);
-            const onCount = pOnBus.filter(p => p.StatusOn).length;
-            const isFull = (onCount === pOnBus.length && pOnBus.length > 0);
-            
-            if (isFull) full++; else pending++;
-            if (b.Status === 'Departed') departed++;
-            if (b.Status === 'Arrived') arrived++;
-
-            const div = document.createElement('div');
-            div.className = "bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100";
-            div.innerHTML = `
-                <div>
-                    <p class="font-bold text-blue-900">Xe ${b.BusID} - ${c.Province || '---'}</p>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">TX: ${c.Name}</p>
-                    <div class="flex items-center gap-2 mt-2">
-                        <span class="text-[10px] font-bold ${isFull ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'} px-2 py-0.5 rounded-full">${onCount}/${pOnBus.length} khách</span>
-                        <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold uppercase">${b.Status || 'Waiting'}</span>
-                    </div>
-                </div>
-                <a href="tel:${c.Phone}" class="btn-call shadow-md"><i class="fa fa-phone"></i></a>
-            `;
-            list.appendChild(div);
+            const d = document.createElement('div');
+            d.className = "bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100";
+            d.innerHTML = `<div><p class="font-bold text-blue-900">Xe ${bus.BusID} - ${cp.Province}</p><p class="text-[10px] text-slate-400 font-bold uppercase">TX: ${cp.Name} | <span class="${isF?'text-green-600 font-bold':'text-orange-500'}">${onC}/${onB.length} khách</span></p></div><a href="tel:${cp.Phone}" class="btn-call shadow-md"><i class="fa fa-phone"></i></a>`;
+            list.appendChild(d);
         });
-
         document.getElementById('admin-stats-grid').innerHTML = `
-            <div class="bg-white p-4 rounded-2xl border-b-4 border-green-500 shadow-sm">
-                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Xe đủ khách</p>
-                <p class="text-2xl font-black text-green-600">${full}</p>
-            </div>
-            <div class="bg-white p-4 rounded-2xl border-b-4 border-orange-500 shadow-sm">
-                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Xe còn thiếu</p>
-                <p class="text-2xl font-black text-orange-500">${pending}</p>
-            </div>
-            <div class="bg-blue-600 p-4 rounded-2xl shadow-sm text-white">
-                <p class="text-[9px] opacity-70 font-bold uppercase tracking-widest">Đã khởi hành</p>
-                <p class="text-2xl font-black">${departed}</p>
-            </div>
-            <div class="bg-slate-900 p-4 rounded-2xl shadow-sm text-white">
-                <p class="text-[9px] opacity-70 font-bold uppercase tracking-widest">Đã đến nơi</p>
-                <p class="text-2xl font-black text-blue-400">${arrived}</p>
-            </div>
-        `;
+            <div class="bg-white p-3 rounded-2xl border-b-4 border-green-500 shadow-sm"><p class="text-[9px] text-slate-400 font-bold uppercase">Xe Đủ</p><p class="text-xl font-black text-green-600">${full}</p></div>
+            <div class="bg-white p-3 rounded-2xl border-b-4 border-orange-500 shadow-sm"><p class="text-[9px] text-slate-400 font-bold uppercase">Xe Thiếu</p><p class="text-xl font-black text-orange-600">${part}</p></div>
+            <div class="bg-blue-600 p-3 rounded-2xl shadow-sm text-white"><p class="text-[9px] opacity-70 font-bold uppercase">Khởi Hành</p><p class="text-xl font-black">${dep}</p></div>
+            <div class="bg-slate-900 p-3 rounded-2xl shadow-sm text-white"><p class="text-[9px] opacity-70 font-bold uppercase">Đến Nơi</p><p class="text-xl font-black text-blue-400">${arr}</p></div>`;
     }
 
-    // 5. UTILS
-    function showView(id) {
-        ['view-login', 'view-attendance', 'view-admin'].forEach(v => document.getElementById(v).classList.add('hidden'));
-        document.getElementById(id).classList.remove('hidden');
-        window.scrollTo(0,0);
-    }
-    function toggleExpand(id) {
-        if (expandedFamilies.has(id)) expandedFamilies.delete(id); else expandedFamilies.add(id);
-        renderList();
-    }
-    function hideLoader() { document.getElementById('loader').classList.add('hidden'); }
-    function logout() { 
-        Swal.fire({ title: 'Đăng xuất?', text: "Dữ liệu sẽ được xóa khỏi bộ nhớ máy", showCancelButton: true })
-        .then(r => { if(r.isConfirmed) { localStorage.removeItem('sehc_hometown_2026_cache'); location.reload(); } });
-    }
+    function toggleF(id) { if (expandedFamilies.has(id)) expandedFamilies.delete(id); else expandedFamilies.add(id); renderList(); }
 </script>
 </body>
 </html>
